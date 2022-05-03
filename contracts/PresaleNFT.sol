@@ -9,21 +9,22 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract Big is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
-    uint256 public maxSupply = 1000;
+    uint256 public maxSupply = 10;
     uint256 presalePrice = 0.001 ether;
     uint256 publicsalePrice = 0.01 ether;
     uint256 public presaleFixedMinting = 5;
     Counters.Counter private _tokenIdCounter;
-    mapping(address => bool) _allowList;
-    mapping (uint256=>uint256) refundTokenInDate;
+    mapping(address => bool) public _allowList;
+    mapping (uint256=>uint256) public refundTokenInDate;
 
     constructor() ERC721("Big", "Big") {
         _tokenIdCounter.increment();
     }
 
-    function presaleMint() public {
-        require(_allowList[msg.sender] == true, 'not allowed');
-        require(balanceOf(msg.sender) <=5, 'mint limit reached for this address');
+    function presaleMint() public payable{
+        require(_allowList[msg.sender] == true, 'Not whitelisted');
+        require(balanceOf(msg.sender) <5, 'mint limit reached for this address');
+        require(msg.value >=presalePrice, 'Insufficient balance');
         uint256 tokenId = _tokenIdCounter.current();
         require(tokenId <=maxSupply, 'Max cap reached');
         _tokenIdCounter.increment();
@@ -52,7 +53,7 @@ contract Big is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     function requestRefund(uint256 tokenId) public{
         require(msg.sender == ownerOf(tokenId), 'You must be the owner');
         require(refundTokenInDate[tokenId] == 0, 'Already requested');
-        refundTokenInDate[tokenId] = block.timestamp;
+        refundTokenInDate[tokenId] = (block.timestamp + 1 weeks);
     }
 
     function getRefund(uint256 tokenId) public payable{
@@ -62,6 +63,10 @@ contract Big is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         if(block.timestamp >= requestedRefund){
             payable(address(msg.sender)).transfer(presalePrice);
         }
+    }
+
+    function getBankBalance() public view returns(uint){
+        return address(this).balance;
     }
 
     // The following functions are overrides required by Solidity.
