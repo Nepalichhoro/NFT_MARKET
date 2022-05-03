@@ -34,11 +34,10 @@ contract Big is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     function publicsaleMint(uint256 numoftokens) public payable {
         require(numoftokens <=5, 'max limit is 5');
         require(msg.value >=(numoftokens * publicsalePrice), 'Insufficient balance');
-        uint256 tokenId = _tokenIdCounter.current();
-        require(tokenId <=maxSupply, 'Max cap reached');
-        for(uint i=0; i<= numoftokens; i++){
-            _tokenIdCounter.increment();
-            _safeMint(msg.sender, tokenId);
+        require(totalSupply()+numoftokens <= maxSupply, 'Max cap would exceed');
+        for(uint i=0; i<numoftokens; i++){
+            uint mintIndex = totalSupply();
+            _safeMint(msg.sender, mintIndex);   
         }
     }
 
