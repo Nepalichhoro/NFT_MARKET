@@ -59,10 +59,9 @@ contract Big is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     function getRefund(uint256 tokenId) public payable{
         require(msg.sender == ownerOf(tokenId), 'You must be the owner');
         require(refundTokenInDate[tokenId] != 0, 'You must request first');
-        uint256 requestedRefund = refundTokenInDate[tokenId];
-        if(block.timestamp < requestedRefund){
-            payable(address(msg.sender)).transfer(presalePrice);
-        }
+        require(block.timestamp >= refundTokenInDate[tokenId], 'Must wait for a week after request was made');
+        payable(address(msg.sender)).transfer(presalePrice);
+
     }
 
     function getBankBalance() public view returns(uint){
