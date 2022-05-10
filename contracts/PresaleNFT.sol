@@ -14,17 +14,15 @@ contract Big is ERC721, ERC721Enumerable, ReentrancyGuard, ERC721URIStorage, Own
     uint256 presalePrice = 0.001 ether;
     uint256 publicsalePrice = 0.01 ether;
     uint256 public presaleFixedMinting = 5;
-    Counters.Counter private _tokenIdCounter;
     mapping(address => bool) public _allowList;
     mapping (uint256=>uint256) public refundTokenInDate;
 
     constructor() ERC721("Big", "Big") {
-        _tokenIdCounter.increment();
     }
 
     function presaleMint() public payable{
         require(_allowList[msg.sender] == true, 'Not whitelisted');
-        require(balanceOf(msg.sender) <5, 'mint limit reached for this address');
+        require(balanceOf(msg.sender) <5, 'Mint limit reached for this address');
         require(msg.value >=presalePrice, 'Insufficient balance');
         uint256 tokenId = _tokenIdCounter.current();
         require(tokenId <=maxSupply, 'Max cap reached');
@@ -61,14 +59,11 @@ contract Big is ERC721, ERC721Enumerable, ReentrancyGuard, ERC721URIStorage, Own
         require(refundTokenInDate[tokenId] != 0, 'You must request first');
         require(block.timestamp >= refundTokenInDate[tokenId], 'Must wait for a week after request was made');
         payable(address(msg.sender)).transfer(presalePrice);
-
     }
 
     function getBankBalance() public view returns(uint){
         return address(this).balance;
     }
-
-    // The following functions are overrides required by Solidity.
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId)
         internal
