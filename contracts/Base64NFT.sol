@@ -8,8 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./Base64.sol";
 
-
-contract Big is ERC721Enumerable, Ownable {
+contract Base64NFT is ERC721Enumerable, Ownable {
     uint256 public stringLimit = 45;
     using Counters for Counters.Counter;
     using Strings for uint256;
